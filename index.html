@@ -46,7 +46,7 @@
       // Validate the timeout value or set a default
       if (isNaN(timeoutValue) || timeoutValue < 0) {
         console.warn(`Invalid timeout value entered (${timeoutInput.value}). Using default: 5000ms`);
-        timeoutValue = 5000; // Use a default value
+        timeoutValue = 2800; // Use a default value
         // Optionally update the input field to show the default being used
         // timeoutInput.value = timeoutValue;
       }
@@ -76,7 +76,7 @@
   </script>
 
   <label for="timeoutInput">Timeout before signing (ms): </label>
-  <input type="number" id="timeoutInput" value="5000" min="0">
+  <input type="number" id="timeoutInput" value="2800" min="0">
 
   <br><br><br><br>
 

